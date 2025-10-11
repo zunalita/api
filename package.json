@@ -1,0 +1,3 @@
+"scripts": {
+  "prebuild": "node scripts/generate-api-map.js",
+}

@@ -1,21 +1,11 @@
-import fs from 'fs';
-import path from 'path';
+import routesList from '../api-map.json'; // adjust path if needed
 
 export default function handler(req, res) {
-  const baseUrl = `${req.headers['x-forwarded-proto'] || 'https'}://${req.headers.host}/api`;
-  const apiDir = path.join(process.cwd(), 'api');
-  let files = [];
-
-  try {
-    files = fs.readdirSync(apiDir).filter(file => file.endsWith('.js'));
-  } catch (err) {
-    console.error('Error reading /api:', err);
-  }
+  const protocol = req.headers['x-forwarded-proto'] || 'https';
+  const baseUrl = `${protocol}://${req.headers.host}/api`;
 
   const routes = {};
-  files.forEach(file => {
-    const name = file.replace('.js', '');
-    if (name === 'index') return;
+  routesList.forEach(name => {
     routes[`${name}_url`] = `${baseUrl}/${name}{?params}`;
   });
 
