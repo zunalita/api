@@ -1,10 +1,9 @@
-// scripts/generate-api-map.js
-import fs from 'fs';
-import path from 'path';
+const fs = require('fs');
+const path = require('path');
 
 /**
  * Recursively find all .js files in the /api directory,
- * excluding index.js and any test or helper files.
+ * excluding index.js and any helper files.
  */
 function getApiRoutes(dir = path.join(process.cwd(), 'api'), prefix = '') {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -33,8 +32,8 @@ try {
   const routes = getApiRoutes();
   const outputPath = path.join(process.cwd(), 'api-map.json');
   fs.writeFileSync(outputPath, JSON.stringify(routes, null, 2));
-  console.log('api-map.json generated successfully:\n', routes);
+  console.log('✅ api-map.json generated successfully:\n', routes);
 } catch (error) {
-  console.error('Failed to generate api-map.json:', error);
+  console.error('❌ Failed to generate api-map.json:', error);
   process.exit(1);
 }
