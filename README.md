@@ -1,6 +1,8 @@
 # Zunalita API — Vercel serverless functions for Zunalita Blog
 
-**Zunalita API** is designed to work flawlessly on Zunalita services as it's Blog, Post-Creator and autorevocation.
+![Vercel](https://vercelbadge.vercel.app/api/zunalita-admin/api) 
+
+**Zunalita API** is designed to work flawlessly on Zunalita services as it's Blog, Post-Creator, Trust system and token auto-revocation.
 
 This project powers the [zunalita.github.io](https://zunalita.github.io) / [zunalita api](https://zunalita.vercel.app/api) website and is maintained as like almost every Zunalita product!
 
