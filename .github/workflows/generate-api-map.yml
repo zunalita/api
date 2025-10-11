@@ -1,0 +1,40 @@
+name: Generate API Map
+
+on:
+  push:
+    paths:
+      - 'api/**.js'
+      - 'scripts/generate-api-map.js'
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run generate-api-map.js
+        run: node scripts/generate-api-map.js
+
+      - name: Commit api-map.json if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet api-map.json; then
+            echo "No changes to commit"
+          else
+            git add api-map.json
+            git commit -m "chore: update api-map.json [auto]"
+            git push
+          fi
