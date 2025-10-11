@@ -31,10 +31,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          if git diff --quiet api-map.json; then
-            echo "No changes to commit"
-          else
-            git add api-map.json
-            git commit -m "chore: update api-map.json [auto]"
-            git push
-          fi
+          git add api-map.json
+          git commit -m "chore: update api-map.json [auto]"
+          git push
