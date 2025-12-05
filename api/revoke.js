@@ -1,59 +1,40 @@
+import { setCors, handleOptions } from './lib/cors.js';
+import { requireClientCreds } from './lib/env.js';
+import { revokeToken } from './lib/github.js';
+
 // Revoking oauth user tokens for more security at Zunalita!
 export default async function handler(req, res) {
-  // Set CORS headers
-  res.setHeader("Access-Control-Allow-Origin", "https://zunalita.github.io");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  setCors(res);
+  if (handleOptions(req, res)) return;
 
-  if (req.method === "OPTIONS") {
-    return res.status(204).end();
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'method not allowed' });
   }
 
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "method not allowed" });
-  }
-
-  const { token } = req.body;
-
+  const { token } = req.body || {};
   if (!token) {
-    return res.status(400).json({ error: "missing token" });
+    return res.status(400).json({ error: 'missing token' });
   }
 
-  // --- Prefix check (quick validation) ---
-  const validPrefixes = ["ghp_", "gho_", "ghu_", "ghs_", "ghr_"];
+  // quick format validation
+  const validPrefixes = ['ghp_', 'gho_', 'ghu_', 'ghs_', 'ghr_'];
   if (!validPrefixes.some(prefix => token.startsWith(prefix))) {
-    return res.status(400).json({ error: "invalid token format" });
+    return res.status(400).json({ error: 'invalid token format' });
   }
 
-  const client_id = process.env.GITHUB_CLIENT_ID;
-  const client_secret = process.env.GITHUB_CLIENT_SECRET;
-
-  if (!client_id || !client_secret) {
-    return res.status(500).json({ error: "server misconfigured" });
+  let client_id, client_secret;
+  try {
+    ({ client_id, client_secret } = requireClientCreds());
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'server misconfigured' });
   }
 
   try {
-    const tokenRevocationRes = await fetch(
-      `https://api.github.com/applications/${client_id}/token`,
-      {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-          "Authorization": `Basic ${Buffer.from(`${client_id}:${client_secret}`).toString("base64")}`,
-        },
-        body: JSON.stringify({ access_token: token }),
-      }
-    );
-
-    if (!tokenRevocationRes.ok) {
-      const errText = await tokenRevocationRes.text();
-      throw new Error(`gitHub responded with an error during token revocation: ${errText}`);
-    }
-
-    res.status(200).json({ message: "token revoked successfully" });
+    await revokeToken(token, client_id, client_secret);
+    return res.status(200).json({ message: 'token revoked successfully' });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "token revocation failed" });
+    return res.status(500).json({ error: 'token revocation failed' });
   }
 }

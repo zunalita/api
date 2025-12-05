@@ -1,4 +1,7 @@
 [
+  "lib/cors",
+  "lib/env",
+  "lib/github",
   "oauth",
   "revoke"
 ]
