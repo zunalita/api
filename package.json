@@ -1,7 +1,0 @@
-{
-  "name": "zunalita-api",
-  "version": "1.0.0",
-  "scripts": {
-    "prebuild": "node scripts/generate-api-map.js"
-  }
-}
